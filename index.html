@@ -878,6 +878,13 @@
                         if (!key || seenLinks.has(key)) return false;
                         seenLinks.add(key);
                         return true;
+                    }).sort((a, b) => {
+                        const timeA = a.pubDate ? Date.parse(a.pubDate) : 0;
+                        const timeB = b.pubDate ? Date.parse(b.pubDate) : 0;
+                        if (Number.isNaN(timeA) && Number.isNaN(timeB)) return 0;
+                        if (Number.isNaN(timeA)) return 1;
+                        if (Number.isNaN(timeB)) return -1;
+                        return timeB - timeA;
                     });
                 },
 

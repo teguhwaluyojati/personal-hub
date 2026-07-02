@@ -87,11 +87,15 @@ foreach ($xml->channel->item as $item) {
         'link' => $link,
         'pubDate' => $pubDate,
     ];
-
-    if (count($items) >= $count) {
-        break;
-    }
 }
+
+usort($items, static function (array $a, array $b): int {
+    $timeA = strtotime((string) ($a['pubDate'] ?? '')) ?: 0;
+    $timeB = strtotime((string) ($b['pubDate'] ?? '')) ?: 0;
+    return $timeB <=> $timeA;
+});
+
+$items = array_slice($items, 0, $count);
 
 if (count($items) === 0) {
     http_response_code(502);

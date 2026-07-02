@@ -48,14 +48,20 @@ module.exports = async function handler(req, res) {
         }
 
         const itemMatches = [...rssContent.matchAll(/<item\b[\s\S]*?<\/item>/gi)];
-        const items = itemMatches.slice(0, count).map((itemMatch) => {
+        const items = itemMatches.map((itemMatch) => {
             const block = itemMatch[0];
             return {
                 title: getTagValue(block, "title"),
                 link: getTagValue(block, "link"),
                 pubDate: getTagValue(block, "pubDate"),
             };
-        }).filter((item) => item.title && item.link);
+        }).filter((item) => item.title && item.link)
+            .sort((a, b) => {
+                const timeA = Date.parse(a.pubDate || "") || 0;
+                const timeB = Date.parse(b.pubDate || "") || 0;
+                return timeB - timeA;
+            })
+            .slice(0, count);
 
         if (items.length === 0) {
             res.status(502).json({ status: "error", message: "Tidak ada berita dari feed Detik Finance" });
