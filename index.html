@@ -374,15 +374,7 @@
                     }
 
                     try {
-                        const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=idr');
-                        if (!btcRes.ok) {
-                            throw new Error(`BTC API gagal: ${btcRes.status} ${btcRes.statusText}`);
-                        }
-                        const btcData = await btcRes.json();
-                        const btcIdr = btcData?.bitcoin?.idr;
-                        if (typeof btcIdr !== 'number') {
-                            throw new Error('Data BTC/IDR tidak tersedia');
-                        }
+                        const btcIdr = await this.fetchBtcIdr();
                         this.startMarketRoll('btc', btcIdr);
                         this.btcUpdatedAt = this.formatMarketUpdatedTime();
                     } catch (error) {
@@ -482,6 +474,49 @@
                     }).format(value);
                 },
 
+                async fetchJsonWithFallback(urls) {
+                    let lastError = null;
+                    for (const url of urls) {
+                        try {
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`${response.status} ${response.statusText}`);
+                            }
+                            return await response.json();
+                        } catch (error) {
+                            lastError = error;
+                        }
+                    }
+                    throw lastError || new Error('Semua endpoint gagal');
+                },
+
+                async fetchBtcIdr() {
+                    try {
+                        const btcData = await this.fetchJsonWithFallback([
+                            'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=idr'
+                        ]);
+                        const btcIdr = btcData?.bitcoin?.idr;
+                        if (typeof btcIdr === 'number') {
+                            return btcIdr;
+                        }
+                    } catch (error) {
+                        // fallback below
+                    }
+
+                    const usdtData = await this.fetchJsonWithFallback([
+                        'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+                    ]);
+                    const btcUsd = Number(usdtData?.price);
+                    if (Number.isNaN(btcUsd)) {
+                        throw new Error('Data BTC/USD tidak tersedia');
+                    }
+
+                    if (typeof this.usdLastNumeric !== 'number' || this.usdLastNumeric <= 0) {
+                        throw new Error('Data USD/IDR belum tersedia untuk konversi BTC');
+                    }
+                    return btcUsd * this.usdLastNumeric;
+                },
+
                 startMarketRoll(type, targetValue) {
                     const isUsd = type === 'usd';
                     const timerKey = isUsd ? 'usdRollTimer' : 'btcRollTimer';
@@ -524,12 +559,10 @@
 
                 async fetchIhsg() {
                     try {
-                        const response = await fetch(`ihsg.php?_=${Date.now()}`);
-                        if (!response.ok) {
-                            throw new Error(`IHSG API gagal: ${response.status} ${response.statusText}`);
-                        }
-
-                        const data = await response.json();
+                        const data = await this.fetchJsonWithFallback([
+                            `/api/ihsg?_=${Date.now()}`,
+                            `ihsg.php?_=${Date.now()}`
+                        ]);
                         if (data.status !== 'ok' || typeof data.last !== 'number' || typeof data.changePct !== 'number') {
                             throw new Error('Data IHSG tidak valid');
                         }
@@ -613,7 +646,11 @@
                 },
 
                 buildNewsSourceUrl() {
-                    return `news.php?count=${this.newsFetchCount}&_=${Date.now()}`;
+                    const t = Date.now();
+                    return [
+                        `/api/news?count=${this.newsFetchCount}&_=${t}`,
+                        `news.php?count=${this.newsFetchCount}&_=${t}`
+                    ];
                 },
 
                 mapNewsItems(items) {
@@ -638,13 +675,8 @@
                 },
 
                 async fetchNewsBatch(resetPage = false) {
-                    const sourceUrl = this.buildNewsSourceUrl();
-                    const newsRes = await fetch(sourceUrl);
-                    if (!newsRes.ok) {
-                        throw new Error(`News API gagal: ${newsRes.status} ${newsRes.statusText}`);
-                    }
-
-                    const newsData = await newsRes.json();
+                    const sourceUrls = this.buildNewsSourceUrl();
+                    const newsData = await this.fetchJsonWithFallback(sourceUrls);
                     if (newsData.status !== 'ok' || !Array.isArray(newsData.items) || newsData.items.length === 0) {
                         throw new Error('Data berita kosong');
                     }
