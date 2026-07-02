@@ -190,7 +190,13 @@
                         </div>
                         <div class="border-t border-slate-800 pt-3">
                             <div class="text-xs text-slate-400 font-bold uppercase flex items-center gap-2 mb-2">
-                                <i class="fas fa-chart-line text-cyan-500"></i> IHSG
+                                <i :class="ihsgMarketClosed ? 'fas fa-moon text-indigo-400' : 'fas fa-chart-line text-cyan-500'"></i>
+                                <span>IHSG</span>
+                                <span
+                                    x-show="ihsgMarketClosed"
+                                    class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 normal-case font-semibold"
+                                    x-text="i18nText('ihsg_market_closed_badge', 'Market Tutup')"
+                                ></span>
                             </div>
                             <div class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2">
                                 <div class="flex items-center justify-between gap-3">
@@ -299,6 +305,9 @@
                 ihsgUpdatedAt: '-',
                 ihsgLastNumeric: null,
                 ihsgRollTimer: null,
+                ihsgMarketClosed: false,
+                ihsgSnapshotKey: 'ihsg_last_snapshot_v1',
+                ihsgClosedSeedTried: false,
                 topNews: [],
                 newsPage: 1,
                 newsPerPage: 4,
@@ -335,14 +344,17 @@
                         const langFromEvent = event && event.detail && event.detail.lang;
                         this.currentLang = langFromEvent === 'en' ? 'en' : 'id';
                         this.updateTime();
+                        if (!this.isIhsgMarketOpen()) {
+                            this.setIhsgClosedState();
+                        }
                     });
 
                     this.fetchMarketInfo();
                     setInterval(() => this.fetchMarketInfo(), 15 * 1000);
                     this.fetchNewsInfo();
                     setInterval(() => this.fetchNewsInfo(), 15 * 60 * 1000);
-                    this.fetchIhsg();
-                    setInterval(() => this.fetchIhsg(), 5000);
+                    this.refreshIhsgData();
+                    setInterval(() => this.refreshIhsgData(), 5000);
                 },
 
                 updateTime() {
@@ -572,7 +584,69 @@
                     }, 50);
                 },
 
-                async fetchIhsg() {
+                getJakartaHour() {
+                    const hourText = new Intl.DateTimeFormat('en-US', {
+                        hour: '2-digit',
+                        hour12: false,
+                        timeZone: 'Asia/Jakarta'
+                    }).format(new Date());
+                    const hour = Number(hourText);
+                    return Number.isNaN(hour) ? 0 : hour;
+                },
+
+                isIhsgMarketOpen() {
+                    const jakartaHour = this.getJakartaHour();
+                    return jakartaHour >= 9 && jakartaHour < 16;
+                },
+
+                setIhsgClosedState() {
+                    this.ihsgMarketClosed = true;
+                    if (this.ihsgRollTimer) {
+                        clearInterval(this.ihsgRollTimer);
+                        this.ihsgRollTimer = null;
+                    }
+
+                    const snapshot = this.getIhsgSnapshot();
+                    if (snapshot && typeof snapshot.last === 'number') {
+                        this.ihsgLastNumeric = snapshot.last;
+                        this.ihsgValue = this.formatIhsgNumber(snapshot.last);
+                        this.ihsgChangeText = snapshot.changeText || '-';
+                        this.ihsgTrendClass = snapshot.trendClass || 'text-slate-400';
+                        this.ihsgUpdatedAt = snapshot.updatedAt || '-';
+                    } else if (typeof this.ihsgLastNumeric === 'number') {
+                        this.ihsgValue = this.formatIhsgNumber(this.ihsgLastNumeric);
+                        this.ihsgChangeText = this.ihsgChangeText && this.ihsgChangeText !== 'Memuat...' ? this.ihsgChangeText : '-';
+                        this.ihsgTrendClass = 'text-slate-400';
+                        this.ihsgUpdatedAt = this.ihsgUpdatedAt && this.ihsgUpdatedAt !== '-' ? this.ihsgUpdatedAt : '-';
+                    } else {
+                        this.ihsgValue = this.ihsgValue && this.ihsgValue !== 'Tidak tersedia' ? this.ihsgValue : 'Memuat...';
+                        this.ihsgChangeText = '-';
+                        this.ihsgTrendClass = 'text-slate-400';
+                        this.ihsgUpdatedAt = '-';
+                    }
+                },
+
+                async refreshIhsgData() {
+                    if (!this.isIhsgMarketOpen()) {
+                        const hasSnapshot = !!this.getIhsgSnapshot();
+                        const hasLiveValue = typeof this.ihsgLastNumeric === 'number';
+                        if (!hasSnapshot && !hasLiveValue && !this.ihsgClosedSeedTried) {
+                            this.ihsgClosedSeedTried = true;
+                            await this.fetchIhsg(true);
+                        }
+                        this.setIhsgClosedState();
+                        return;
+                    }
+                    this.ihsgClosedSeedTried = false;
+                    this.fetchIhsg();
+                },
+
+                async fetchIhsg(allowClosedFetch = false) {
+                    if (!allowClosedFetch && !this.isIhsgMarketOpen()) {
+                        this.setIhsgClosedState();
+                        return;
+                    }
+
                     try {
                         const data = await this.fetchJsonWithFallback([
                             `/api/ihsg?_=${Date.now()}`,
@@ -603,8 +677,19 @@
                             second: '2-digit',
                             timeZone: 'Asia/Jakarta'
                         }) + ' WIB';
+                        this.ihsgMarketClosed = false;
+                        this.setIhsgSnapshot({
+                            last: data.last,
+                            changeText: this.ihsgChangeText,
+                            trendClass: this.ihsgTrendClass,
+                            updatedAt: this.ihsgUpdatedAt
+                        });
                     } catch (error) {
                         console.error('Gagal menarik IHSG:', error);
+                        if (!this.isIhsgMarketOpen()) {
+                            this.setIhsgClosedState();
+                            return;
+                        }
                         if (this.ihsgRollTimer) {
                             clearInterval(this.ihsgRollTimer);
                             this.ihsgRollTimer = null;
@@ -614,6 +699,27 @@
                         this.ihsgChangeText = 'Tidak tersedia';
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = '-';
+                    }
+                },
+
+                getIhsgSnapshot() {
+                    try {
+                        const raw = localStorage.getItem(this.ihsgSnapshotKey);
+                        if (!raw) return null;
+                        const parsed = JSON.parse(raw);
+                        if (!parsed || typeof parsed.last !== 'number') return null;
+                        return parsed;
+                    } catch (error) {
+                        console.warn('Gagal membaca cache IHSG:', error);
+                        return null;
+                    }
+                },
+
+                setIhsgSnapshot(snapshot) {
+                    try {
+                        localStorage.setItem(this.ihsgSnapshotKey, JSON.stringify(snapshot));
+                    } catch (error) {
+                        console.warn('Gagal menyimpan cache IHSG:', error);
                     }
                 },
 
