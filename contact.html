@@ -3,51 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Me - TWJ Dev</title>
+    <title data-i18n="page_title">Kontak - TWJ Dev</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="i18n.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
+<body data-page="contact" class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
     <main class="max-w-3xl mx-auto w-full flex-1">
         <div class="border border-slate-800 bg-slate-900 rounded-2xl p-6 md:p-8">
             <div class="flex items-center gap-3 mb-4">
                 <div class="h-10 w-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
                     <i class="fas fa-envelope-open-text"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-white">Contact Me</h1>
+                <h1 data-i18n="title_main" class="text-2xl font-bold text-white">Kontak Saya</h1>
+                <div class="ml-auto bg-slate-900 border border-slate-800 rounded-lg p-1 flex items-center gap-1">
+                    <button type="button" data-lang-btn="id" class="text-[11px] font-semibold px-2 py-1 rounded border">ID</button>
+                    <button type="button" data-lang-btn="en" class="text-[11px] font-semibold px-2 py-1 rounded border">EN</button>
+                </div>
             </div>
 
-            <p class="text-slate-400 text-sm">
-                Ingin bekerja sama untuk custom personal hub, dashboard real-time monitoring, atau automasi workflow? Silakan kirim pesan melalui form berikut.
+            <p data-i18n="intro_desc" class="text-slate-400 text-sm">
+                Ingin bekerja sama untuk personal hub kustom, dashboard pemantauan waktu nyata, atau automasi alur kerja? Silakan kirim pesan melalui form berikut.
             </p>
 
             <form class="mt-5 space-y-3">
                 <div>
-                    <label for="name" class="text-xs text-slate-500 uppercase tracking-wide">Nama</label>
+                    <label for="name" data-i18n="form_name" class="text-xs text-slate-500 uppercase tracking-wide">Nama</label>
                     <input
                         id="name"
                         name="name"
                         type="text"
+                        data-i18n-placeholder="form_name_ph"
                         placeholder="Nama Anda"
                         class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500"
                     >
                 </div>
                 <div>
-                    <label for="email" class="text-xs text-slate-500 uppercase tracking-wide">Email</label>
+                    <label for="email" data-i18n="form_email" class="text-xs text-slate-500 uppercase tracking-wide">Email</label>
                     <input
                         id="email"
                         name="email"
                         type="email"
+                        data-i18n-placeholder="form_email_ph"
                         placeholder="email@domain.com"
                         class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500"
                     >
                 </div>
                 <div>
-                    <label for="message" class="text-xs text-slate-500 uppercase tracking-wide">Pesan</label>
+                    <label for="message" data-i18n="form_message" class="text-xs text-slate-500 uppercase tracking-wide">Pesan</label>
                     <textarea
                         id="message"
                         name="message"
                         rows="5"
+                        data-i18n-placeholder="form_message_ph"
                         placeholder="Tulis kebutuhan project atau ide kolaborasi Anda..."
                         class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 resize-y"
                     ></textarea>
@@ -57,14 +65,14 @@
                     class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
                 >
                     <i class="fas fa-paper-plane"></i>
-                    Kirim Pesan (Template)
+                    <span data-i18n="form_submit">Kirim Pesan (Contoh)</span>
                 </button>
             </form>
 
             <div class="mt-8 flex items-center gap-4 text-sm">
                 <a href="index.html" class="text-blue-400 hover:text-blue-300 transition inline-flex items-center gap-2">
                     <i class="fas fa-arrow-left"></i>
-                    Kembali ke Dashboard
+                    <span data-i18n="back_dashboard">Kembali ke Dasbor</span>
                 </a>
             </div>
         </div>
@@ -75,12 +83,12 @@
             <div class="flex items-center justify-center h-6 w-6 rounded-full bg-slate-800 border border-slate-700">
                 <i class="fas fa-shield-alt text-[10px] text-slate-400"></i>
             </div>
-            <span>System Secure. All modules operating at optimal capacity.</span>
+            <span data-i18n="footer_secure">Sistem aman. Semua modul berjalan optimal.</span>
         </div>
         
         <div class="mt-4 md:mt-0 flex items-center gap-6">
-            <a href="about.html" class="hover:text-slate-300 transition">About</a>
-            <a href="contact.html" class="hover:text-slate-300 transition">Contact Me</a>
+            <a href="about.html" data-i18n="nav_about" class="hover:text-slate-300 transition">Tentang</a>
+            <a href="contact.html" data-i18n="nav_contact" class="hover:text-slate-300 transition">Kontak</a>
             <span class="font-mono text-slate-600">|</span>
             <span class="font-medium">&copy; <span id="footer-year-contact"></span> TWJ Dev</span>
         </div>

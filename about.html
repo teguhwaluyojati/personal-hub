@@ -3,59 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - TWJ Dev</title>
+    <title data-i18n="page_title">Tentang - TWJ Dev</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="i18n.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
+<body data-page="about" class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
     <main class="max-w-3xl mx-auto w-full flex-1">
         <div class="border border-slate-800 bg-slate-900 rounded-2xl p-6 md:p-8">
             <div class="flex items-center gap-3 mb-4">
                 <div class="h-10 w-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
                     <i class="fas fa-user-astronaut"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-white">About TWJ Dev</h1>
+                <h1 data-i18n="title_main" class="text-2xl font-bold text-white">Tentang TWJ Dev</h1>
+                <div class="ml-auto bg-slate-900 border border-slate-800 rounded-lg p-1 flex items-center gap-1">
+                    <button type="button" data-lang-btn="id" class="text-[11px] font-semibold px-2 py-1 rounded border">ID</button>
+                    <button type="button" data-lang-btn="en" class="text-[11px] font-semibold px-2 py-1 rounded border">EN</button>
+                </div>
             </div>
 
-            <p class="text-slate-300 leading-relaxed">
-                Halo, saya <span class="text-white font-semibold">TWJ Dev</span> — developer yang berfokus pada pembuatan dashboard personal, automasi workflow, dan monitoring data real-time untuk kebutuhan harian maupun operasional tim kecil.
+            <p data-i18n="intro_1" class="text-slate-300 leading-relaxed">
+                Halo, saya TWJ Dev — pengembang yang berfokus pada pembuatan dashboard personal, automasi alur kerja, dan pemantauan data waktu nyata untuk kebutuhan harian maupun operasional tim kecil.
             </p>
-            <p class="text-slate-400 mt-4 leading-relaxed">
-                <span class="text-slate-200 font-medium">Personal Hub</span> ini adalah produk contoh yang bisa disesuaikan dengan kebutuhan Anda: dari pemantauan market, update berita, status koneksi, sampai quick notes dan shortcut aktivitas harian.
+            <p data-i18n="intro_2" class="text-slate-400 mt-4 leading-relaxed">
+                Personal Hub ini adalah produk contoh yang bisa disesuaikan dengan kebutuhan Anda: dari pemantauan pasar, pembaruan berita, status koneksi, sampai catatan cepat dan pintasan aktivitas harian.
             </p>
 
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                    <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Fokus</p>
-                    <p class="text-slate-300">Personal hub, real-time monitoring, dashboard UI, dan workflow automation.</p>
+                    <p data-i18n="box_focus_title" class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Fokus</p>
+                    <p data-i18n="box_focus_desc" class="text-slate-300">Personal hub, pemantauan waktu nyata, antarmuka dashboard, dan automasi alur kerja.</p>
                 </div>
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                    <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Value</p>
-                    <p class="text-slate-300">Customizable, ringan, dan mudah diadaptasi sesuai alur kerja pengguna.</p>
+                    <p data-i18n="box_value_title" class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Nilai</p>
+                    <p data-i18n="box_value_desc" class="text-slate-300">Dapat dikustomisasi, ringan, dan mudah diadaptasi sesuai alur kerja pengguna.</p>
                 </div>
             </div>
 
             <div class="mt-4 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm">
-                <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Use case Personal Hub</p>
-                <p class="text-slate-300">
-                    Monitoring indikator penting secara live, menampilkan data prioritas di satu layar, dan mengurangi perpindahan aplikasi saat bekerja.
+                <p data-i18n="box_usecase_title" class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Contoh penggunaan Personal Hub</p>
+                <p data-i18n="box_usecase_desc" class="text-slate-300">
+                    Memantau indikator penting secara langsung, menampilkan data prioritas di satu layar, dan mengurangi perpindahan aplikasi saat bekerja.
                 </p>
             </div>
 
-            <p class="text-slate-400 mt-5 leading-relaxed text-sm">
+            <p data-i18n="mission_desc" class="text-slate-400 mt-5 leading-relaxed text-sm">
                 Tujuan saya sederhana: menghadirkan personal hub yang tidak hanya terlihat rapi, tapi juga benar-benar membantu pengambilan keputusan cepat setiap hari.
             </p>
 
             <div class="mt-8 border-t border-slate-800 pt-6">
                 <p class="text-slate-300 text-sm leading-relaxed">
-                    Ingin bekerja sama untuk membuat personal hub yang sesuai kebutuhan Anda?
-                    <a href="contact.html" class="text-blue-400 hover:text-blue-300 transition font-medium">Hubungi saya di halaman Contact Me</a>.
+                    <span data-i18n="cta_lead">Ingin bekerja sama untuk membuat personal hub yang sesuai kebutuhan Anda?</span>
+                    <a href="contact.html" data-i18n="cta_contact_link" class="text-blue-400 hover:text-blue-300 transition font-medium">Hubungi saya di halaman Kontak</a>.
                 </p>
             </div>
 
             <a href="index.html" class="inline-flex items-center gap-2 mt-8 text-sm text-blue-400 hover:text-blue-300 transition">
                 <i class="fas fa-arrow-left"></i>
-                Kembali ke Dashboard
+                <span data-i18n="back_dashboard">Kembali ke Dasbor</span>
             </a>
         </div>
     </main>
@@ -65,12 +70,12 @@
             <div class="flex items-center justify-center h-6 w-6 rounded-full bg-slate-800 border border-slate-700">
                 <i class="fas fa-shield-alt text-[10px] text-slate-400"></i>
             </div>
-            <span>System Secure. All modules operating at optimal capacity.</span>
+            <span data-i18n="footer_secure">Sistem aman. Semua modul berjalan optimal.</span>
         </div>
         
         <div class="mt-4 md:mt-0 flex items-center gap-6">
-            <a href="about.html" class="hover:text-slate-300 transition">About</a>
-            <a href="contact.html" class="hover:text-slate-300 transition">Contact Me</a>
+            <a href="about.html" data-i18n="nav_about" class="hover:text-slate-300 transition">Tentang</a>
+            <a href="contact.html" data-i18n="nav_contact" class="hover:text-slate-300 transition">Kontak</a>
             <span class="font-mono text-slate-600">|</span>
             <span class="font-medium">&copy; <span id="footer-year-about"></span> TWJ Dev</span>
         </div>

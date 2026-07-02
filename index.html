@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Personal Hub</title>
+    <title data-i18n="page_title">Your Personal Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="i18n.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -13,7 +14,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
+<body data-page="index" class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
 
     <div class="max-w-[1400px] mx-auto w-full flex-1 flex flex-col" x-data="dashboardState()">
         
@@ -23,22 +24,28 @@
                 <p class="text-sm text-slate-400 mt-1" x-text="currentTime"></p>
             </div>
             
-            <div class="mt-4 md:mt-0 flex items-center gap-3 bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg">
-                <span class="flex h-3 w-3 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="pingColor"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3" :class="pingColor"></span>
-                </span>
-                <span class="text-sm font-medium text-slate-300 flex gap-2">
-                    Connection:
-                    <span class="font-bold" :class="pingTextColor" x-text="pingText">Menghitung...</span>
-                </span>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <div class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg flex items-center gap-3">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="pingColor"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" :class="pingColor"></span>
+                    </span>
+                    <span class="text-sm font-medium text-slate-300 flex gap-2">
+                        <span data-i18n="header_connection">Koneksi:</span>
+                        <span class="font-bold" :class="pingTextColor" x-text="pingText">Menghitung...</span>
+                    </span>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-lg p-1 flex items-center gap-1">
+                    <button type="button" data-lang-btn="id" class="text-[11px] font-semibold px-2 py-1 rounded border">ID</button>
+                    <button type="button" data-lang-btn="en" class="text-[11px] font-semibold px-2 py-1 rounded border">EN</button>
+                </div>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
             
             <div class="lg:col-span-3 flex flex-col gap-4">
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-slate-800 pb-2">Comms & Social</h2>
+                <h2 data-i18n="section_comms" class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 border-b border-slate-800 pb-2">Komunikasi & Sosial</h2>
                 
                 <a href="whatsapp://send" class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center gap-4 hover:border-green-500 transition group">
                     <div class="bg-green-500/10 p-3 rounded-lg text-green-500 group-hover:bg-green-500 group-hover:text-white transition">
@@ -46,7 +53,7 @@
                     </div>
                     <div>
                         <h3 class="font-semibold text-slate-200">WhatsApp</h3>
-                        <p class="text-xs text-slate-400">Buka App Desktop</p>
+                        <p data-i18n="app_open_desktop" class="text-xs text-slate-400">Buka Aplikasi Desktop</p>
                     </div>
                 </a>
 
@@ -56,11 +63,11 @@
                     </div>
                     <div>
                         <h3 class="font-semibold text-slate-200">Telegram</h3>
-                        <p class="text-xs text-slate-400">Buka App Desktop</p>
+                        <p data-i18n="app_open_desktop" class="text-xs text-slate-400">Buka Aplikasi Desktop</p>
                     </div>
                 </a>
 
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-4 mb-1 border-b border-slate-800 pb-2">Dev & Trading</h2>
+                <h2 data-i18n="section_dev" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-4 mb-1 border-b border-slate-800 pb-2">Pengembang & Investasi</h2>
 
                 <a href="https://github.com" target="_blank" class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center gap-4 hover:border-slate-400 transition group">
                     <div class="bg-slate-700/30 p-3 rounded-lg text-slate-300 group-hover:bg-slate-100 group-hover:text-slate-900 transition">
@@ -68,7 +75,7 @@
                     </div>
                     <div>
                         <h3 class="font-semibold text-slate-200">GitHub</h3>
-                        <p class="text-xs text-slate-400">Cek Repository</p>
+                        <p data-i18n="repo_check" class="text-xs text-slate-400">Cek Repositori</p>
                     </div>
                 </a>
 
@@ -77,7 +84,7 @@
                         <i class="fas fa-chart-line text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-slate-200">Watchlist BSJP</h3>
+                        <h3 data-i18n="watchlist_title" class="font-semibold text-slate-200">Pantauan BSJP</h3>
                         <p class="text-xs text-slate-400">Pantau BBRI & BBCA</p>
                     </div>
                 </a>
@@ -88,7 +95,7 @@
                 <div class="w-full flex-shrink-0 h-56 md:h-72 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex justify-center items-center relative">
                     <div x-show="!currentVideoId" class="text-slate-600 text-center flex flex-col items-center">
                         <i class="fas fa-play-circle text-5xl mb-4 opacity-30"></i>
-                        <p class="text-sm">Pilih musik untuk memutar</p>
+                        <p data-i18n="video_pick_music" class="text-sm">Pilih musik untuk memutar</p>
                     </div>
                     <template x-if="currentVideoId">
                         <iframe width="100%" height="100%" :src="`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="absolute inset-0"></iframe>
@@ -100,16 +107,17 @@
                         type="text" 
                         x-model="searchQuery" 
                         @keyup.enter="searchVideos()"
+                        data-i18n-placeholder="search_placeholder"
                         placeholder="Cari musik di YouTube..." 
                         class="w-full bg-transparent px-3 py-2 text-sm text-white focus:outline-none placeholder-slate-600"
                     >
                     <button @click="searchVideos()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm transition font-bold">
-                        Cari
+                        <span data-i18n="search_button">Cari</span>
                     </button>
                 </div>
 
                 <div class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar mt-2" @scroll="if ($el.scrollTop + $el.clientHeight >= $el.scrollHeight - 10) loadMore()">
-                    <div x-show="isLoading" class="text-xs text-slate-500 text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Mencari...</div>
+                    <div x-show="isLoading" class="text-xs text-slate-500 text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i><span data-i18n="search_loading">Mencari...</span></div>
                     
                     <template x-for="video in searchResults" :key="video.id.videoId">
                         <div @click="playVideo(video.id.videoId)" class="flex gap-4 items-center p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition">
@@ -121,7 +129,7 @@
                         </div>
                     </template>
                     
-                    <div x-show="isLoadingMore" class="text-xs text-blue-400 text-center py-2 animate-pulse">Memuat lagu lainnya...</div>
+                    <div x-show="isLoadingMore" class="text-xs text-blue-400 text-center py-2 animate-pulse" data-i18n="search_loading_more">Memuat lagu lainnya...</div>
                 </div>
             </div>
 
@@ -131,9 +139,9 @@
                 <div class="basis-[70%] min-h-0 bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col group hover:border-cyan-500 transition relative">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 group-hover:text-cyan-500 transition">
-                            <i class="fas fa-globe text-cyan-500"></i> Market & News
+                            <i class="fas fa-globe text-cyan-500"></i> <span data-i18n="market_news">Pasar & Berita</span>
                         </h3>
-                        <button @click="fetchInfo()" class="text-slate-500 hover:text-cyan-400 transition" title="Refresh Data">
+                        <button @click="fetchInfo()" class="text-slate-500 hover:text-cyan-400 transition" data-i18n-title="refresh_data" title="Muat Ulang Data">
                             <i class="fas fa-sync-alt text-[10px]" :class="isFetchingInfo ? 'fa-spin' : ''"></i>
                         </button>
                     </div>
@@ -154,7 +162,7 @@
                                     </span>
                                     <div class="text-right">
                                         <span class="font-mono text-green-400 font-bold tracking-wider block" x-text="usdToIdr"></span>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5" x-text="`Update: ${usdUpdatedAt}`"></span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5"><span data-i18n="label_updated">Diperbarui</span>: <span x-text="usdUpdatedAt"></span></span>
                                     </div>
                                 </div>
                                 <div class="w-full shrink-0 flex justify-between items-center">
@@ -163,7 +171,7 @@
                                     </span>
                                     <div class="text-right">
                                         <span class="font-mono text-orange-400 font-bold tracking-wider block" x-text="btcToIdr"></span>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5" x-text="`Update: ${btcUpdatedAt}`"></span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5"><span data-i18n="label_updated">Diperbarui</span>: <span x-text="btcUpdatedAt"></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -189,14 +197,14 @@
                                     <span class="font-mono text-cyan-300 font-bold tracking-wider text-sm" x-text="ihsgValue"></span>
                                     <span class="text-[11px] font-mono font-semibold" :class="ihsgTrendClass" x-text="ihsgChangeText"></span>
                                 </div>
-                                <div class="text-[10px] text-slate-500 mt-1" x-text="`Update: ${ihsgUpdatedAt}`"></div>
+                                <div class="text-[10px] text-slate-500 mt-1"><span data-i18n="label_updated">Diperbarui</span>: <span x-text="ihsgUpdatedAt"></span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-2">
                         <div x-show="isFetchingInfo && topNews.length === 0" class="text-xs text-slate-500 text-center py-4 animate-pulse">
-                            Memuat data market...
+                            <span data-i18n="news_loading">Memuat data market...</span>
                         </div>
                         
                         <template x-for="news in paginatedTopNews()" :key="news.link">
@@ -212,15 +220,15 @@
                             :disabled="newsPage <= 1"
                             class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700 transition"
                         >
-                            Prev
+                            <span data-i18n="news_prev">Sebelumnya</span>
                         </button>
-                        <span class="text-[10px] text-slate-500" x-text="isLoadingMoreNews ? 'Memuat berita lain...' : `Hal ${newsPage} / ${totalNewsPages()}`"></span>
+                        <span class="text-[10px] text-slate-500" x-text="getNewsPaginationLabel()"></span>
                         <button
                             @click="nextNewsPage()"
                             :disabled="isLoadingMoreNews"
                             class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-700 transition"
                         >
-                            Next
+                            <span data-i18n="news_next">Selanjutnya</span>
                         </button>
                     </div>
                 </div>
@@ -228,15 +236,16 @@
                 <div class="basis-[30%] min-h-0 bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col group hover:border-yellow-500 transition relative">
                     <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
                         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:text-yellow-500 transition flex items-center gap-2">
-                            <i class="fas fa-terminal"></i> Quick Log
+                            <i class="fas fa-terminal"></i> <span data-i18n="quick_log">Catatan Cepat</span>
                         </h3>
                         <span x-show="isSaving" x-transition.opacity class="text-[10px] bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-md animate-pulse">
-                            Menyimpan...
+                            <span data-i18n="save_status">Menyimpan...</span>
                         </span>
                     </div>
                     
                     <textarea
                         x-model="stickyNote"
+                        data-i18n-placeholder="quick_log_placeholder"
                         placeholder="Catat query database tanpa application impact join, atau reminder jadwal ganti oli Agya di sini..."
                         class="w-full h-full min-h-0 bg-transparent text-sm text-yellow-200 placeholder-slate-700 focus:outline-none resize-none mt-1 leading-relaxed custom-scrollbar font-mono"
                     ></textarea>
@@ -250,12 +259,12 @@
                 <div class="flex items-center justify-center h-6 w-6 rounded-full bg-slate-800 border border-slate-700">
                     <i class="fas fa-shield-alt text-[10px] text-slate-400"></i>
                 </div>
-                <span>System Secure. All modules operating at optimal capacity.</span>
+                <span data-i18n="footer_secure">Sistem aman. Semua modul berjalan optimal.</span>
             </div>
             
             <div class="mt-4 md:mt-0 flex items-center gap-6">
-                <a href="about.html" class="hover:text-slate-300 transition">About</a>
-                <a href="contact.html" class="hover:text-slate-300 transition">Contact Me</a>
+                <a href="about.html" data-i18n="nav_about" class="hover:text-slate-300 transition">Tentang</a>
+                <a href="contact.html" data-i18n="nav_contact" class="hover:text-slate-300 transition">Kontak</a>
                 <span class="font-mono text-slate-600">|</span>
                 <span class="font-medium">&copy; <span x-text="new Date().getFullYear()"></span> TWJ Dev</span>
             </div>
@@ -274,8 +283,8 @@
                 isLoading: false,
                 isLoadingMore: false,
                 nextPageToken: '',
-                usdToIdr: 'Loading...',
-                btcToIdr: 'Loading...',
+                usdToIdr: 'Memuat...',
+                btcToIdr: 'Memuat...',
                 usdUpdatedAt: '-',
                 btcUpdatedAt: '-',
                 marketCardIndex: 0,
@@ -284,8 +293,8 @@
                 btcLastNumeric: null,
                 usdRollTimer: null,
                 btcRollTimer: null,
-                ihsgValue: 'Loading...',
-                ihsgChangeText: 'Loading...',
+                ihsgValue: 'Memuat...',
+                ihsgChangeText: 'Memuat...',
                 ihsgTrendClass: 'text-slate-400',
                 ihsgUpdatedAt: '-',
                 ihsgLastNumeric: null,
@@ -297,6 +306,7 @@
                 newsFetchStep: 12,
                 isLoadingMoreNews: false,
                 isFetchingInfo: false,
+                currentLang: localStorage.getItem('app_lang') === 'en' ? 'en' : 'id',
 
                 pingText: 'Mengecek...',
                 pingColor: 'bg-slate-500',
@@ -319,6 +329,10 @@
                         this.isSaving = true;
                         localStorage.setItem('personal_dashboard_log', value);
                         setTimeout(() => { this.isSaving = false; }, 600);
+                    });
+
+                    window.addEventListener('app-language-changed', (event) => {
+                        this.currentLang = event?.detail?.lang === 'en' ? 'en' : 'id';
                     });
 
                     this.fetchMarketInfo();
@@ -443,6 +457,23 @@
                     }) + ' WIB';
                 },
 
+                i18nText(key, fallback) {
+                    const _lang = this.currentLang;
+                    if (window.AppI18n && typeof window.AppI18n.t === 'function') {
+                        const translated = window.AppI18n.t(key);
+                        return translated || fallback;
+                    }
+                    return fallback;
+                },
+
+                getNewsPaginationLabel() {
+                    if (this.isLoadingMoreNews) {
+                        return this.i18nText('news_loading_more_news', 'Memuat berita lain...');
+                    }
+                    const pageWord = this.i18nText('news_page_word', 'Hal');
+                    return `${pageWord} ${this.newsPage} / ${this.totalNewsPages()}`;
+                },
+
                 formatIdrCurrency(value) {
                     return new Intl.NumberFormat('id-ID', {
                         style: 'currency',
@@ -531,8 +562,8 @@
                             this.ihsgRollTimer = null;
                         }
                         this.ihsgLastNumeric = null;
-                        this.ihsgValue = 'N/A';
-                        this.ihsgChangeText = 'Unavailable';
+                        this.ihsgValue = 'Tidak tersedia';
+                        this.ihsgChangeText = 'Tidak tersedia';
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = '-';
                     }
