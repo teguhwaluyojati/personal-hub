@@ -332,7 +332,9 @@
                     });
 
                     window.addEventListener('app-language-changed', (event) => {
-                        this.currentLang = event?.detail?.lang === 'en' ? 'en' : 'id';
+                        const langFromEvent = event && event.detail && event.detail.lang;
+                        this.currentLang = langFromEvent === 'en' ? 'en' : 'id';
+                        this.updateTime();
                     });
 
                     this.fetchMarketInfo();
@@ -345,7 +347,20 @@
 
                 updateTime() {
                     const now = new Date();
-                    this.currentTime = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+                    const storedLang = localStorage.getItem('app_lang');
+                    const activeLang = storedLang === 'en' ? 'en' : (this.currentLang === 'en' ? 'en' : 'id');
+                    this.currentLang = activeLang;
+                    const locale = activeLang === 'en' ? 'en-US' : 'id-ID';
+                    this.currentTime = now.toLocaleString(locale, {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        timeZone: 'Asia/Jakarta'
+                    }) + ' WIB';
                 },
 
                 async fetchMarketInfo() {
