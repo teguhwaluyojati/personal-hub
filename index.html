@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="page_title">Your Personal Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="i18n.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -32,7 +32,7 @@
                     </span>
                     <span class="text-sm font-medium text-slate-300 flex gap-2">
                         <span data-i18n="header_connection">Koneksi:</span>
-                        <span class="font-bold" :class="pingTextColor" x-text="pingText">Menghitung...</span>
+                        <span class="font-bold" :class="pingTextColor" x-text="pingText">...</span>
                     </span>
                 </div>
                 <div class="bg-slate-900 border border-slate-800 rounded-lg p-1 flex items-center gap-1">
@@ -85,7 +85,7 @@
                     </div>
                     <div>
                         <h3 data-i18n="watchlist_title" class="font-semibold text-slate-200">Pantauan BSJP</h3>
-                        <p class="text-xs text-slate-400">Pantau BBRI & BBCA</p>
+                        <p data-i18n="watchlist_subtitle" class="text-xs text-slate-400">Pantau BBRI & BBCA</p>
                     </div>
                 </a>
             </div>
@@ -284,7 +284,7 @@
             <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" @click="ihsgChartOpen = false"></div>
             <div class="relative w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                 <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-                    <h3 class="text-sm font-bold text-slate-200">IHSG Chart</h3>
+                    <h3 data-i18n="ihsg_chart_title" class="text-sm font-bold text-slate-200">IHSG Chart</h3>
                     <button
                         type="button"
                         class="text-slate-400 hover:text-white transition"
@@ -295,7 +295,7 @@
                     </button>
                 </div>
                 <iframe
-                    title="IHSG Chart"
+                    :title="i18nText('ihsg_chart_title', 'IHSG Chart')"
                     loading="lazy"
                     class="w-full h-[70vh] bg-slate-950"
                     src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_ihsg_modal&symbol=IDX%3ACOMPOSITE&interval=30&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0f172a&studies=[]&theme=dark&style=1&timezone=Asia%2FJakarta&withdateranges=1&hidevolume=1&allow_symbol_change=0"
@@ -332,8 +332,8 @@
                 isLoading: false,
                 isLoadingMore: false,
                 nextPageToken: '',
-                usdToIdr: 'Memuat...',
-                btcToIdr: 'Memuat...',
+                usdToIdr: '...',
+                btcToIdr: '...',
                 usdUpdatedAt: '-',
                 btcUpdatedAt: '-',
                 marketCardIndex: 0,
@@ -342,8 +342,8 @@
                 btcLastNumeric: null,
                 usdRollTimer: null,
                 btcRollTimer: null,
-                ihsgValue: 'Memuat...',
-                ihsgChangeText: 'Memuat...',
+                ihsgValue: '...',
+                ihsgChangeText: '...',
                 ihsgTrendClass: 'text-slate-400',
                 ihsgUpdatedAt: '-',
                 ihsgLastNumeric: null,
@@ -361,7 +361,7 @@
                 isFetchingInfo: false,
                 currentLang: localStorage.getItem('app_lang') === 'en' ? 'en' : 'id',
 
-                pingText: 'Mengecek...',
+                pingText: '...',
                 pingColor: 'bg-slate-500',
                 pingTextColor: 'text-slate-400',
 
@@ -372,6 +372,7 @@
                 catFedMalam: localStorage.getItem('cat_fed_malam') === 'true',
 
                 init() {
+                    this.relocalizeStatusText();
                     this.updateTime();
                     setInterval(() => this.updateTime(), 1000);
 
@@ -387,6 +388,7 @@
                     window.addEventListener('app-language-changed', (event) => {
                         const langFromEvent = event && event.detail && event.detail.lang;
                         this.currentLang = langFromEvent === 'en' ? 'en' : 'id';
+                        this.relocalizeStatusText();
                         this.updateTime();
                         if (!this.isIhsgMarketOpen()) {
                             this.setIhsgClosedState();
@@ -419,6 +421,42 @@
                     }) + ' WIB';
                 },
 
+                getActiveLocale() {
+                    return this.currentLang === 'en' ? 'en-US' : 'id-ID';
+                },
+
+                relocalizeStatusText() {
+                    const loadingVariants = ['...', 'Memuat...', 'Loading...'];
+                    const checkingVariants = ['Mengecek...', 'Checking...'];
+                    const unavailableVariants = ['Tidak tersedia', 'Unavailable'];
+                    const offlineVariants = ['RTO / Offline', 'RTO / Offline'];
+
+                    if (loadingVariants.includes(this.usdToIdr)) {
+                        this.usdToIdr = this.i18nText('state_loading', 'Loading...');
+                    }
+                    if (loadingVariants.includes(this.btcToIdr)) {
+                        this.btcToIdr = this.i18nText('state_loading', 'Loading...');
+                    }
+                    if (loadingVariants.includes(this.ihsgValue)) {
+                        this.ihsgValue = this.i18nText('state_loading', 'Loading...');
+                    }
+                    if (loadingVariants.includes(this.ihsgChangeText)) {
+                        this.ihsgChangeText = this.i18nText('state_loading', 'Loading...');
+                    }
+                    if (checkingVariants.includes(this.pingText) || this.pingText === '...') {
+                        this.pingText = this.i18nText('ping_checking', 'Checking...');
+                    } else if (offlineVariants.includes(this.pingText)) {
+                        this.pingText = this.i18nText('ping_offline', 'RTO / Offline');
+                    }
+
+                    if (unavailableVariants.includes(this.ihsgValue)) {
+                        this.ihsgValue = this.i18nText('data_unavailable', 'Unavailable');
+                    }
+                    if (unavailableVariants.includes(this.ihsgChangeText)) {
+                        this.ihsgChangeText = this.i18nText('data_unavailable', 'Unavailable');
+                    }
+                },
+
                 async fetchMarketInfo() {
                     try {
                         const rateRes = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -440,7 +478,7 @@
                             this.usdRollTimer = null;
                         }
                         this.usdLastNumeric = null;
-                        this.usdToIdr = error.message || 'Error';
+                        this.usdToIdr = this.i18nText('data_unavailable', 'Unavailable');
                         this.usdUpdatedAt = '-';
                     }
 
@@ -455,7 +493,7 @@
                             this.btcRollTimer = null;
                         }
                         this.btcLastNumeric = null;
-                        this.btcToIdr = error.message || 'Error';
+                        this.btcToIdr = this.i18nText('data_unavailable', 'Unavailable');
                         this.btcUpdatedAt = '-';
                     }
                 },
@@ -467,7 +505,7 @@
                     } catch (error) {
                         console.error("Gagal menarik berita:", error);
                         this.topNews = [{
-                            title: 'Gagal terhubung ke server berita. Coba refresh.',
+                            title: this.i18nText('news_server_error', 'Failed to reach news server. Please refresh.'),
                             link: '#',
                             pubDate: new Date().toISOString()
                         }];
@@ -516,7 +554,7 @@
                 },
 
                 formatMarketUpdatedTime() {
-                    return new Date().toLocaleTimeString('id-ID', {
+                    return new Date().toLocaleTimeString(this.getActiveLocale(), {
                         hour: '2-digit',
                         minute: '2-digit',
                         second: '2-digit',
@@ -542,7 +580,7 @@
                 },
 
                 formatIdrCurrency(value) {
-                    return new Intl.NumberFormat('id-ID', {
+                    return new Intl.NumberFormat(this.getActiveLocale(), {
                         style: 'currency',
                         currency: 'IDR',
                         maximumFractionDigits: 0
@@ -663,11 +701,11 @@
                         this.ihsgUpdatedAt = snapshot.updatedAt || '-';
                     } else if (typeof this.ihsgLastNumeric === 'number') {
                         this.ihsgValue = this.formatIhsgNumber(this.ihsgLastNumeric);
-                        this.ihsgChangeText = this.ihsgChangeText && this.ihsgChangeText !== 'Memuat...' ? this.ihsgChangeText : '-';
+                        this.ihsgChangeText = this.ihsgChangeText && this.ihsgChangeText !== '-' ? this.ihsgChangeText : '-';
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = this.ihsgUpdatedAt && this.ihsgUpdatedAt !== '-' ? this.ihsgUpdatedAt : '-';
                     } else {
-                        this.ihsgValue = this.ihsgValue && this.ihsgValue !== 'Tidak tersedia' ? this.ihsgValue : 'Memuat...';
+                        this.ihsgValue = this.i18nText('state_loading', 'Loading...');
                         this.ihsgChangeText = '-';
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = '-';
@@ -706,7 +744,7 @@
 
                         this.startIhsgRoll(data.last);
 
-                        const absLabel = `${data.changeAbs >= 0 ? '+' : ''}${new Intl.NumberFormat('id-ID', {
+                        const absLabel = `${data.changeAbs >= 0 ? '+' : ''}${new Intl.NumberFormat(this.getActiveLocale(), {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                         }).format(data.changeAbs)}`;
@@ -719,7 +757,7 @@
                                 : 'text-slate-300';
 
                         const updateDate = data.updatedAt ? new Date(data.updatedAt) : new Date();
-                        this.ihsgUpdatedAt = updateDate.toLocaleTimeString('id-ID', {
+                        this.ihsgUpdatedAt = updateDate.toLocaleTimeString(this.getActiveLocale(), {
                             hour: '2-digit',
                             minute: '2-digit',
                             second: '2-digit',
@@ -743,8 +781,8 @@
                             this.ihsgRollTimer = null;
                         }
                         this.ihsgLastNumeric = null;
-                        this.ihsgValue = 'Tidak tersedia';
-                        this.ihsgChangeText = 'Tidak tersedia';
+                        this.ihsgValue = this.i18nText('data_unavailable', 'Unavailable');
+                        this.ihsgChangeText = this.i18nText('data_unavailable', 'Unavailable');
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = '-';
                     }
@@ -772,7 +810,7 @@
                 },
 
                 formatIhsgNumber(value) {
-                    return new Intl.NumberFormat('id-ID', {
+                    return new Intl.NumberFormat(this.getActiveLocale(), {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     }).format(value);
@@ -830,7 +868,7 @@
                             ? parsedDate.toISOString()
                             : '';
                         return {
-                            title: item.title || 'Judul tidak tersedia',
+                            title: item.title || this.i18nText('news_title_unavailable', 'Title unavailable'),
                             link: item.link || '#',
                             pubDateRaw: item.pubDate || '',
                             pubDate: safePubDate
@@ -931,7 +969,7 @@
                     const parsedDate = parsedFromRaw || (parsedFromIso && !Number.isNaN(parsedFromIso.getTime()) ? parsedFromIso : null);
 
                     if (parsedDate) {
-                        const formatted = parsedDate.toLocaleString('id-ID', {
+                        const formatted = parsedDate.toLocaleString(this.getActiveLocale(), {
                             weekday: 'long',
                             day: '2-digit',
                             month: 'short',
@@ -962,7 +1000,7 @@
                             this.pingColor = 'bg-red-500'; this.pingTextColor = 'text-red-500';
                         }
                     } catch (error) {
-                        this.pingText = 'RTO / Offline';
+                        this.pingText = this.i18nText('ping_offline', 'RTO / Offline');
                         this.pingColor = 'bg-red-600'; this.pingTextColor = 'text-red-600';
                     }
                 },
