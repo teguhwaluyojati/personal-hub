@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8">
-    <main class="max-w-3xl mx-auto">
+<body class="bg-slate-950 text-slate-200 font-sans min-h-screen p-6 md:p-8 flex flex-col">
+    <main class="max-w-3xl mx-auto w-full flex-1">
         <div class="border border-slate-800 bg-slate-900 rounded-2xl p-6 md:p-8">
             <div class="flex items-center gap-3 mb-4">
                 <div class="h-10 w-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">
@@ -18,26 +18,40 @@
             </div>
 
             <p class="text-slate-300 leading-relaxed">
-                Halo, saya <span class="text-white font-semibold">TWJ Dev</span>. Saya suka bikin tools yang langsung kepakai buat kerja harian: dashboard personal, automasi task berulang, dan integrasi data real-time yang tetap ringan.
+                Halo, saya <span class="text-white font-semibold">TWJ Dev</span> — developer yang berfokus pada pembuatan dashboard personal, automasi workflow, dan monitoring data real-time untuk kebutuhan harian maupun operasional tim kecil.
             </p>
             <p class="text-slate-400 mt-4 leading-relaxed">
-                Project <span class="text-slate-200 font-medium">Morning Malas</span> ini saya pakai sebagai command center pribadi: cek info penting cepat, play music fokus, pantau market/news, dan catat log harian tanpa ribet.
+                <span class="text-slate-200 font-medium">Personal Hub</span> ini adalah produk contoh yang bisa disesuaikan dengan kebutuhan Anda: dari pemantauan market, update berita, status koneksi, sampai quick notes dan shortcut aktivitas harian.
             </p>
 
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
                     <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Fokus</p>
-                    <p class="text-slate-300">Productivity tools, dashboard UI, dan workflow automation.</p>
+                    <p class="text-slate-300">Personal hub, real-time monitoring, dashboard UI, dan workflow automation.</p>
                 </div>
                 <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                    <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Style kerja</p>
-                    <p class="text-slate-300">Simple, cepat, minim friction, tapi tetap rapi dan stabil.</p>
+                    <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Value</p>
+                    <p class="text-slate-300">Customizable, ringan, dan mudah diadaptasi sesuai alur kerja pengguna.</p>
                 </div>
             </div>
 
+            <div class="mt-4 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm">
+                <p class="text-slate-500 uppercase tracking-wide text-[11px] mb-1">Use case Personal Hub</p>
+                <p class="text-slate-300">
+                    Monitoring indikator penting secara live, menampilkan data prioritas di satu layar, dan mengurangi perpindahan aplikasi saat bekerja.
+                </p>
+            </div>
+
             <p class="text-slate-400 mt-5 leading-relaxed text-sm">
-                Buat saya, software yang bagus itu bukan yang paling kompleks, tapi yang paling membantu dipakai tiap hari.
+                Tujuan saya sederhana: menghadirkan personal hub yang tidak hanya terlihat rapi, tapi juga benar-benar membantu pengambilan keputusan cepat setiap hari.
             </p>
+
+            <div class="mt-8 border-t border-slate-800 pt-6">
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Ingin bekerja sama untuk membuat personal hub yang sesuai kebutuhan Anda?
+                    <a href="contact.html" class="text-blue-400 hover:text-blue-300 transition font-medium">Hubungi saya di halaman Contact Me</a>.
+                </p>
+            </div>
 
             <a href="index.html" class="inline-flex items-center gap-2 mt-8 text-sm text-blue-400 hover:text-blue-300 transition">
                 <i class="fas fa-arrow-left"></i>
@@ -45,5 +59,25 @@
             </a>
         </div>
     </main>
+
+    <footer class="max-w-3xl mx-auto w-full mt-8 border-t border-slate-800/60 pt-6 pb-2 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center h-6 w-6 rounded-full bg-slate-800 border border-slate-700">
+                <i class="fas fa-shield-alt text-[10px] text-slate-400"></i>
+            </div>
+            <span>System Secure. All modules operating at optimal capacity.</span>
+        </div>
+        
+        <div class="mt-4 md:mt-0 flex items-center gap-6">
+            <a href="about.html" class="hover:text-slate-300 transition">About</a>
+            <a href="contact.html" class="hover:text-slate-300 transition">Contact Me</a>
+            <span class="font-mono text-slate-600">|</span>
+            <span class="font-medium">&copy; <span id="footer-year-about"></span> TWJ Dev</span>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('footer-year-about').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
