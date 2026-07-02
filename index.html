@@ -139,11 +139,46 @@
                     </div>
                     
                     <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 mb-3 shadow-inner space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-slate-400 font-bold uppercase flex items-center gap-2">
-                                <i class="fas fa-dollar-sign text-green-500"></i> USD / IDR
-                            </span>
-                            <span class="font-mono text-green-400 font-bold tracking-wider" x-text="usdToIdr"></span>
+                        <div
+                            class="overflow-hidden"
+                            @touchstart="onMarketCardTouchStart($event)"
+                            @touchend="onMarketCardTouchEnd($event)"
+                        >
+                            <div
+                                class="flex transition-transform duration-300 ease-out"
+                                :style="`transform: translateX(-${marketCardIndex * 100}%);`"
+                            >
+                                <div class="w-full shrink-0 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400 font-bold uppercase flex items-center gap-2">
+                                        <i class="fas fa-dollar-sign text-green-500"></i> USD / IDR
+                                    </span>
+                                    <div class="text-right">
+                                        <span class="font-mono text-green-400 font-bold tracking-wider block" x-text="usdToIdr"></span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5" x-text="`Update: ${usdUpdatedAt}`"></span>
+                                    </div>
+                                </div>
+                                <div class="w-full shrink-0 flex justify-between items-center">
+                                    <span class="text-xs text-slate-400 font-bold uppercase flex items-center gap-2">
+                                        <i class="fab fa-btc text-orange-500"></i> BTC / IDR
+                                    </span>
+                                    <div class="text-right">
+                                        <span class="font-mono text-orange-400 font-bold tracking-wider block" x-text="btcToIdr"></span>
+                                        <span class="text-[10px] text-slate-500 block mt-0.5" x-text="`Update: ${btcUpdatedAt}`"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <button @click="prevMarketCard()" class="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="goToMarketCard(0)" class="h-1.5 w-1.5 rounded-full transition" :class="marketCardIndex === 0 ? 'bg-cyan-400' : 'bg-slate-700'"></button>
+                                <button @click="goToMarketCard(1)" class="h-1.5 w-1.5 rounded-full transition" :class="marketCardIndex === 1 ? 'bg-cyan-400' : 'bg-slate-700'"></button>
+                            </div>
+                            <button @click="nextMarketCard()" class="text-[10px] px-2 py-1 rounded bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                         <div class="border-t border-slate-800 pt-3">
                             <div class="text-xs text-slate-400 font-bold uppercase flex items-center gap-2 mb-2">
@@ -239,10 +274,21 @@
                 isLoadingMore: false,
                 nextPageToken: '',
                 usdToIdr: 'Loading...',
+                btcToIdr: 'Loading...',
+                usdUpdatedAt: '-',
+                btcUpdatedAt: '-',
+                marketCardIndex: 0,
+                marketCardTouchStartX: 0,
+                usdLastNumeric: null,
+                btcLastNumeric: null,
+                usdRollTimer: null,
+                btcRollTimer: null,
                 ihsgValue: 'Loading...',
                 ihsgChangeText: 'Loading...',
                 ihsgTrendClass: 'text-slate-400',
                 ihsgUpdatedAt: '-',
+                ihsgLastNumeric: null,
+                ihsgRollTimer: null,
                 topNews: [],
                 newsPage: 1,
                 newsPerPage: 4,
@@ -274,8 +320,10 @@
                         setTimeout(() => { this.isSaving = false; }, 600);
                     });
 
-                    this.fetchInfo();
-                    setInterval(() => this.fetchInfo(), 15 * 60 * 1000);
+                    this.fetchMarketInfo();
+                    setInterval(() => this.fetchMarketInfo(), 15 * 1000);
+                    this.fetchNewsInfo();
+                    setInterval(() => this.fetchNewsInfo(), 15 * 60 * 1000);
                     this.fetchIhsg();
                     setInterval(() => this.fetchIhsg(), 5000);
                 },
@@ -285,9 +333,7 @@
                     this.currentTime = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
                 },
 
-                async fetchInfo() {
-                    this.isFetchingInfo = true;
-
+                async fetchMarketInfo() {
                     try {
                         const rateRes = await fetch('https://open.er-api.com/v6/latest/USD');
                         if (!rateRes.ok) {
@@ -299,16 +345,45 @@
                         }
                         const idr = rateData.rates.IDR;
 
-                        this.usdToIdr = new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            maximumFractionDigits: 0
-                        }).format(idr);
+                        this.startMarketRoll('usd', idr);
+                        this.usdUpdatedAt = this.formatMarketUpdatedTime();
                     } catch (error) {
                         console.error("Gagal menarik data kurs:", error);
+                        if (this.usdRollTimer) {
+                            clearInterval(this.usdRollTimer);
+                            this.usdRollTimer = null;
+                        }
+                        this.usdLastNumeric = null;
                         this.usdToIdr = error.message || 'Error';
+                        this.usdUpdatedAt = '-';
                     }
 
+                    try {
+                        const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=idr');
+                        if (!btcRes.ok) {
+                            throw new Error(`BTC API gagal: ${btcRes.status} ${btcRes.statusText}`);
+                        }
+                        const btcData = await btcRes.json();
+                        const btcIdr = btcData?.bitcoin?.idr;
+                        if (typeof btcIdr !== 'number') {
+                            throw new Error('Data BTC/IDR tidak tersedia');
+                        }
+                        this.startMarketRoll('btc', btcIdr);
+                        this.btcUpdatedAt = this.formatMarketUpdatedTime();
+                    } catch (error) {
+                        console.error("Gagal menarik data BTC:", error);
+                        if (this.btcRollTimer) {
+                            clearInterval(this.btcRollTimer);
+                            this.btcRollTimer = null;
+                        }
+                        this.btcLastNumeric = null;
+                        this.btcToIdr = error.message || 'Error';
+                        this.btcUpdatedAt = '-';
+                    }
+                },
+
+                async fetchNewsInfo() {
+                    this.isFetchingInfo = true;
                     try {
                         await this.fetchNewsBatch(true);
                     } catch (error) {
@@ -324,6 +399,97 @@
                     }
                 },
 
+                fetchInfo() {
+                    this.fetchMarketInfo();
+                    this.fetchNewsInfo();
+                },
+
+                nextMarketCard() {
+                    this.marketCardIndex = this.marketCardIndex === 0 ? 1 : 0;
+                },
+
+                prevMarketCard() {
+                    this.marketCardIndex = this.marketCardIndex === 0 ? 1 : 0;
+                },
+
+                goToMarketCard(index) {
+                    this.marketCardIndex = index === 1 ? 1 : 0;
+                },
+
+                onMarketCardTouchStart(event) {
+                    this.marketCardTouchStartX = event?.changedTouches?.[0]?.clientX || 0;
+                },
+
+                onMarketCardTouchEnd(event) {
+                    const endX = event?.changedTouches?.[0]?.clientX || 0;
+                    const deltaX = endX - this.marketCardTouchStartX;
+                    if (Math.abs(deltaX) < 40) {
+                        return;
+                    }
+                    if (deltaX < 0) {
+                        this.nextMarketCard();
+                    } else {
+                        this.prevMarketCard();
+                    }
+                },
+
+                formatMarketUpdatedTime() {
+                    return new Date().toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        timeZone: 'Asia/Jakarta'
+                    }) + ' WIB';
+                },
+
+                formatIdrCurrency(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                    }).format(value);
+                },
+
+                startMarketRoll(type, targetValue) {
+                    const isUsd = type === 'usd';
+                    const timerKey = isUsd ? 'usdRollTimer' : 'btcRollTimer';
+                    const lastKey = isUsd ? 'usdLastNumeric' : 'btcLastNumeric';
+                    const valueKey = isUsd ? 'usdToIdr' : 'btcToIdr';
+                    const fromValue = typeof this[lastKey] === 'number' ? this[lastKey] : targetValue;
+
+                    if (this[timerKey]) {
+                        clearInterval(this[timerKey]);
+                        this[timerKey] = null;
+                    }
+
+                    if (fromValue === targetValue) {
+                        this[valueKey] = this.formatIdrCurrency(targetValue);
+                        this[lastKey] = targetValue;
+                        return;
+                    }
+
+                    let step = 0;
+                    const totalSteps = 24;
+                    this[timerKey] = setInterval(() => {
+                        step += 1;
+                        const progress = step / totalSteps;
+                        const eased = 1 - Math.pow(1 - progress, 2);
+                        const base = fromValue + ((targetValue - fromValue) * eased);
+                        const jitterAmplitude = (1 - progress) * Math.max(500, Math.abs(targetValue - fromValue) * 0.04);
+                        const jitter = progress >= 1 ? 0 : ((Math.random() * 2) - 1) * jitterAmplitude;
+                        const displayValue = progress >= 1 ? targetValue : base + jitter;
+
+                        this[valueKey] = this.formatIdrCurrency(displayValue);
+
+                        if (step >= totalSteps) {
+                            clearInterval(this[timerKey]);
+                            this[timerKey] = null;
+                            this[valueKey] = this.formatIdrCurrency(targetValue);
+                            this[lastKey] = targetValue;
+                        }
+                    }, 50);
+                },
+
                 async fetchIhsg() {
                     try {
                         const response = await fetch(`ihsg.php?_=${Date.now()}`);
@@ -336,10 +502,7 @@
                             throw new Error('Data IHSG tidak valid');
                         }
 
-                        this.ihsgValue = new Intl.NumberFormat('id-ID', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }).format(data.last);
+                        this.startIhsgRoll(data.last);
 
                         const absLabel = `${data.changeAbs >= 0 ? '+' : ''}${new Intl.NumberFormat('id-ID', {
                             minimumFractionDigits: 2,
@@ -362,11 +525,59 @@
                         }) + ' WIB';
                     } catch (error) {
                         console.error('Gagal menarik IHSG:', error);
+                        if (this.ihsgRollTimer) {
+                            clearInterval(this.ihsgRollTimer);
+                            this.ihsgRollTimer = null;
+                        }
+                        this.ihsgLastNumeric = null;
                         this.ihsgValue = 'N/A';
                         this.ihsgChangeText = 'Unavailable';
                         this.ihsgTrendClass = 'text-slate-400';
                         this.ihsgUpdatedAt = '-';
                     }
+                },
+
+                formatIhsgNumber(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(value);
+                },
+
+                startIhsgRoll(targetValue) {
+                    const fromValue = typeof this.ihsgLastNumeric === 'number' ? this.ihsgLastNumeric : targetValue;
+
+                    if (this.ihsgRollTimer) {
+                        clearInterval(this.ihsgRollTimer);
+                        this.ihsgRollTimer = null;
+                    }
+
+                    if (fromValue === targetValue) {
+                        this.ihsgValue = this.formatIhsgNumber(targetValue);
+                        this.ihsgLastNumeric = targetValue;
+                        return;
+                    }
+
+                    let step = 0;
+                    const totalSteps = 24;
+                    this.ihsgRollTimer = setInterval(() => {
+                        step += 1;
+                        const progress = step / totalSteps;
+                        const eased = 1 - Math.pow(1 - progress, 2);
+                        const base = fromValue + ((targetValue - fromValue) * eased);
+                        const jitterAmplitude = (1 - progress) * Math.max(0.8, Math.abs(targetValue - fromValue) * 0.04);
+                        const jitter = progress >= 1 ? 0 : ((Math.random() * 2) - 1) * jitterAmplitude;
+                        const displayValue = progress >= 1 ? targetValue : base + jitter;
+
+                        this.ihsgValue = this.formatIhsgNumber(displayValue);
+
+                        if (step >= totalSteps) {
+                            clearInterval(this.ihsgRollTimer);
+                            this.ihsgRollTimer = null;
+                            this.ihsgValue = this.formatIhsgNumber(targetValue);
+                            this.ihsgLastNumeric = targetValue;
+                        }
+                    }, 50);
                 },
 
                 buildNewsSourceUrl() {
