@@ -1,4 +1,8 @@
 (() => {
+    const SWITCH_ANIM_MS = 320;
+    let hasHydrated = false;
+    let isSwitching = false;
+
     const DICTS = {
         common: {
             id: {
@@ -135,6 +139,35 @@
     const ACTIVE_CLASS = ["bg-blue-600", "text-white", "border-blue-500"];
     const INACTIVE_CLASS = ["text-slate-400", "border-slate-700", "hover:text-slate-200", "hover:border-slate-500"];
 
+    function ensureTransitionStyle() {
+        if (document.getElementById("i18n-transition-style")) return;
+        const style = document.createElement("style");
+        style.id = "i18n-transition-style";
+        style.textContent = `
+            .i18n-anim-root {
+                transition: opacity ${SWITCH_ANIM_MS}ms cubic-bezier(0.22, 1, 0.36, 1),
+                            transform ${SWITCH_ANIM_MS}ms cubic-bezier(0.22, 1, 0.36, 1),
+                            filter ${SWITCH_ANIM_MS}ms cubic-bezier(0.22, 1, 0.36, 1);
+                will-change: opacity, transform, filter;
+            }
+            .i18n-switch-out {
+                opacity: 0.45;
+                transform: translateY(4px) scale(0.985);
+                filter: blur(1.4px);
+            }
+            .i18n-switch-in {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function getAnimRoot() {
+        return document.querySelector("[data-i18n-root]") || document.body;
+    }
+
     function getPageName() {
         const page = document.body?.dataset?.page;
         return page && DICTS[page] ? page : "index";
@@ -164,8 +197,7 @@
         });
     }
 
-    function applyLanguage(lang) {
-        const safeLang = lang === "en" ? "en" : "id";
+    function applyDomTranslations(safeLang) {
         localStorage.setItem("app_lang", safeLang);
         document.documentElement.lang = safeLang;
 
@@ -191,6 +223,43 @@
         window.dispatchEvent(new CustomEvent("app-language-changed", { detail: { lang: safeLang } }));
     }
 
+    function applyLanguage(lang, options = {}) {
+        const safeLang = lang === "en" ? "en" : "id";
+        const shouldAnimate = options.animate !== false && hasHydrated;
+        const root = getAnimRoot();
+        ensureTransitionStyle();
+
+        if (!shouldAnimate) {
+            applyDomTranslations(safeLang);
+            hasHydrated = true;
+            return;
+        }
+
+        if (isSwitching) return;
+        isSwitching = true;
+
+        if (typeof document.startViewTransition === "function") {
+            const transition = document.startViewTransition(() => {
+                applyDomTranslations(safeLang);
+            });
+            transition.finished.finally(() => {
+                isSwitching = false;
+            });
+            return;
+        }
+
+        root.classList.add("i18n-anim-root", "i18n-switch-out");
+        setTimeout(() => {
+            applyDomTranslations(safeLang);
+            root.classList.remove("i18n-switch-out");
+            root.classList.add("i18n-switch-in");
+            setTimeout(() => {
+                root.classList.remove("i18n-switch-in");
+                isSwitching = false;
+            }, Math.round(SWITCH_ANIM_MS * 0.55));
+        }, Math.round(SWITCH_ANIM_MS * 0.45));
+    }
+
     function bindLanguageToggles() {
         document.querySelectorAll("[data-lang-btn]").forEach((btn) => {
             btn.addEventListener("click", () => {
@@ -207,6 +276,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         bindLanguageToggles();
-        applyLanguage(getLang());
+        applyLanguage(getLang(), { animate: false });
     });
 })();
